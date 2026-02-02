@@ -5,6 +5,7 @@ import '../core/constants/app_colors.dart';
 import '../core/constants/app_strings.dart';
 import '../core/widgets/custom_button.dart';
 import '../core/widgets/custom_text_field.dart';
+import '../domain/entities/atividade.dart';
 import '../data/providers/atividade_provider.dart';
 import '../data/providers/agenda_provider.dart';
 import '../data/providers/auth_provider.dart';
@@ -31,22 +32,42 @@ class _AtividadeDetailScreenState extends State<AtividadeDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final atividadeProvider = Provider.of<AtividadeProvider>(context);
-    final atividade = atividadeProvider.getAtividadeById(widget.atividadeId);
 
-    if (atividade == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text(AppStrings.erro),
-          backgroundColor: AppColors.primaryBlue,
-          foregroundColor: AppColors.white,
-        ),
-        body: const Center(child: Text('Atividade não encontrada')),
-      );
-    }
+    return FutureBuilder<Atividade?>(
+      future: atividadeProvider.getAtividadeById(widget.atividadeId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Carregando...'),
+              backgroundColor: AppColors.primaryBlue,
+              foregroundColor: AppColors.white,
+            ),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
 
+        if (!snapshot.hasData || snapshot.data == null) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text(AppStrings.erro),
+              backgroundColor: AppColors.primaryBlue,
+              foregroundColor: AppColors.white,
+            ),
+            body: const Center(child: Text('Atividade não encontrada')),
+          );
+        }
+
+        final atividade = snapshot.data!;
+        return _buildContent(context, atividade);
+      },
+    );
+  }
+
+  Widget _buildContent(BuildContext context, Atividade atividade) {
     final dateFormat = DateFormat('dd/MM/yyyy');
     final agendaProvider = Provider.of<AgendaProvider>(context);
-    final isFavorito = agendaProvider.isFavorito(atividade.id);
+    final isFavorito = agendaProvider.isFavorito(atividade.id!);
 
     return Scaffold(
       appBar: AppBar(
@@ -57,7 +78,7 @@ class _AtividadeDetailScreenState extends State<AtividadeDetailScreen> {
           IconButton(
             icon: Icon(isFavorito ? Icons.bookmark : Icons.bookmark_border),
             onPressed: () {
-              agendaProvider.toggleFavorito(atividade.id);
+              agendaProvider.toggleFavorito(atividade.id!);
             },
           ),
         ],
@@ -174,89 +195,100 @@ class _AtividadeDetailScreenState extends State<AtividadeDetailScreen> {
     );
   }
 
-  Widget _buildInscricaoButton(BuildContext context, atividade) {
+  Widget _buildInscricaoButton(BuildContext context, Atividade atividade) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final atividadeProvider = Provider.of<AtividadeProvider>(context);
 
-    final isInscrito = atividadeProvider.isUsuarioInscrito(
-      authProvider.currentUser!.id,
-      atividade.id,
-    );
+    return FutureBuilder<bool>(
+      future: atividadeProvider.isUsuarioInscrito(
+        atividade.id!,
+        authProvider.currentUser!.id,
+      ),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    if (isInscrito) {
-      return Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.success.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.success),
-        ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.check_circle, color: AppColors.success),
-            SizedBox(width: 8),
-            Text(
-              'Você está inscrito',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.success,
-              ),
+        final isInscrito = snapshot.data ?? false;
+
+        if (isInscrito) {
+          return Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.success.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.success),
             ),
-          ],
-        ),
-      );
-    }
-
-    if (atividade.vagasDisponiveis <= 0) {
-      return Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.error.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.error),
-        ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.cancel, color: AppColors.error),
-            SizedBox(width: 8),
-            Text(
-              AppStrings.semVagas,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.error,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return CustomButton(
-      text: AppStrings.inscreverSe,
-      onPressed: () async {
-        final success = await atividadeProvider.inscreverEmAtividade(
-          authProvider.currentUser!.id,
-          atividade.id,
-        );
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                success
-                    ? AppStrings.inscritoComSucesso
-                    : 'Erro ao realizar inscrição',
-              ),
-              backgroundColor: success ? AppColors.success : AppColors.error,
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.check_circle, color: AppColors.success),
+                SizedBox(width: 8),
+                Text(
+                  'Você está inscrito',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.success,
+                  ),
+                ),
+              ],
             ),
           );
         }
+
+        if (atividade.vagasDisponiveis <= 0) {
+          return Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.error.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.error),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.cancel, color: AppColors.error),
+                SizedBox(width: 8),
+                Text(
+                  AppStrings.semVagas,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.error,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return CustomButton(
+          text: AppStrings.inscreverSe,
+          onPressed: () async {
+            final success = await atividadeProvider.inscreverEmAtividade(
+              atividade.id!,
+              authProvider.currentUser!.id,
+            );
+
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    success
+                        ? AppStrings.inscritoComSucesso
+                        : 'Erro ao realizar inscrição',
+                  ),
+                  backgroundColor: success
+                      ? AppColors.success
+                      : AppColors.error,
+                ),
+              );
+            }
+          },
+          isLoading: atividadeProvider.isLoading,
+        );
       },
-      isLoading: atividadeProvider.isLoading,
     );
   }
 

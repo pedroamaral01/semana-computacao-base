@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../models/atividade.dart';
+import '../../domain/entities/atividade.dart';
 import '../repositories/mock_repository.dart';
 import '../../services/storage_service.dart';
 import '../../services/notification_service.dart';
@@ -30,9 +30,8 @@ class AgendaProvider with ChangeNotifier {
         .where((atividade) => _favoritosIds.contains(atividade.id))
         .toList()
       ..sort((a, b) {
-        final dateCompare = a.data.compareTo(b.data);
-        if (dateCompare != 0) return dateCompare;
-        return a.horarioInicio.hour.compareTo(b.horarioInicio.hour);
+        final dateCompare = a.dataHora.compareTo(b.dataHora);
+        return dateCompare;
       });
   }
 
@@ -78,15 +77,7 @@ class AgendaProvider with ChangeNotifier {
     if (atividade == null) return;
 
     // Agendar notificação 10 minutos antes
-    final dataHoraAtividade = DateTime(
-      atividade.data.year,
-      atividade.data.month,
-      atividade.data.day,
-      atividade.horarioInicio.hour,
-      atividade.horarioInicio.minute,
-    );
-
-    final dataNotificacao = dataHoraAtividade.subtract(
+    final dataNotificacao = atividade.dataHora.subtract(
       const Duration(minutes: 10),
     );
 

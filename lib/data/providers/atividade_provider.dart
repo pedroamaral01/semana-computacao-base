@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:semana_computacao_app/domain/entities/atividade.dart';
+import '../../domain/entities/atividade.dart';
 import '../../services/firestore_service.dart';
 
 class AtividadeProvider extends ChangeNotifier {
@@ -105,5 +105,63 @@ class AtividadeProvider extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  // Obter datas disponíveis das atividades
+  List<DateTime> getDatasDisponiveis() {
+    final datas = _atividades.map((a) => a.dataHora).toSet().toList();
+    datas.sort();
+    return datas;
+  }
+
+  // Aplicar filtros
+  List<Atividade> aplicarFiltros({String? tipo, DateTime? data}) {
+    var atividadesFiltradas = _atividades;
+
+    if (tipo != null && tipo.isNotEmpty) {
+      atividadesFiltradas = atividadesFiltradas
+          .where((a) => a.tipo == tipo)
+          .toList();
+    }
+
+    if (data != null) {
+      atividadesFiltradas = atividadesFiltradas.where((a) {
+        return a.dataHora.year == data.year &&
+            a.dataHora.month == data.month &&
+            a.dataHora.day == data.day;
+      }).toList();
+    }
+
+    return atividadesFiltradas;
+  }
+
+  // Verificar se usuário está inscrito
+  Future<bool> isUsuarioInscrito(String atividadeId, String usuarioId) async {
+    try {
+      final inscricoes = await _firestoreService.getInscricoesPorAtividade(
+        atividadeId,
+      );
+      return inscricoes.any(
+        (i) => i['usuarioId'] == usuarioId && i['cancelada'] == false,
+      );
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Inscrever em atividade
+  Future<bool> inscreverEmAtividade(
+    String atividadeId,
+    String usuarioId,
+  ) async {
+    try {
+      await _firestoreService.inscreverEmAtividade(usuarioId, atividadeId);
+      await fetchAtividades(); // Atualiza lista
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
   }
 }

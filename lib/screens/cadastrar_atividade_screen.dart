@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../core/constants/app_colors.dart';
 import '../core/widgets/custom_button.dart';
 import '../core/widgets/custom_text_field.dart';
-import '../data/models/atividade.dart';
+import '../domain/entities/atividade.dart';
+import '../data/providers/auth_provider.dart';
 import '../services/firestore_service.dart';
 
 class CadastrarAtividadeScreen extends StatefulWidget {
@@ -46,10 +48,14 @@ class _CadastrarAtividadeScreenState extends State<CadastrarAtividadeScreen> {
     _descricaoController.text = ativ.descricao;
     _palestranteController.text = ativ.palestrante;
     _localController.text = ativ.local;
-    _vagasTotalController.text = ativ.vagasTotal.toString();
-    _dataSelecionada = ativ.data;
-    _horarioInicio = ativ.horarioInicio;
-    _horarioFim = ativ.horarioFim;
+    _vagasTotalController.text = ativ.vagas.toString();
+    _dataSelecionada = ativ.dataHora;
+
+    // Calcular horários a partir de dataHora e duracao
+    _horarioInicio = TimeOfDay.fromDateTime(ativ.dataHora);
+    final fim = ativ.dataHora.add(Duration(minutes: ativ.duracao));
+    _horarioFim = TimeOfDay.fromDateTime(fim);
+
     _tipoSelecionado = ativ.tipo;
     _aoVivo = ativ.aoVivo;
   }
@@ -104,27 +110,44 @@ class _CadastrarAtividadeScreenState extends State<CadastrarAtividadeScreen> {
     });
 
     try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final usuarioId = authProvider.currentUser?.id ?? '';
+
+      // Calcular duração em minutos
+      final inicioEmMinutos = _horarioInicio.hour * 60 + _horarioInicio.minute;
+      final fimEmMinutos = _horarioFim.hour * 60 + _horarioFim.minute;
+      final duracao = fimEmMinutos - inicioEmMinutos;
+
+      // Combinar data com horário
+      final dataHora = DateTime(
+        _dataSelecionada.year,
+        _dataSelecionada.month,
+        _dataSelecionada.day,
+        _horarioInicio.hour,
+        _horarioInicio.minute,
+      );
+
       final atividade = Atividade(
-        id: widget.atividade?.id ?? '',
+        id: widget.atividade?.id,
         titulo: _tituloController.text.trim(),
         descricao: _descricaoController.text.trim(),
         palestrante: _palestranteController.text.trim(),
-        data: _dataSelecionada,
-        horarioInicio: _horarioInicio,
-        horarioFim: _horarioFim,
+        dataHora: dataHora,
+        duracao: duracao,
         local: _localController.text.trim(),
         tipo: _tipoSelecionado,
         aoVivo: _aoVivo,
-        vagasTotal: int.parse(_vagasTotalController.text),
+        vagas: int.parse(_vagasTotalController.text),
         vagasDisponiveis:
             widget.atividade?.vagasDisponiveis ??
             int.parse(_vagasTotalController.text),
+        criadoPor: usuarioId,
       );
 
       if (widget.atividade == null) {
         await firestoreService.criarAtividade(atividade);
       } else {
-        await firestoreService.atualizarAtividade(atividade);
+        await firestoreService.atualizarAtividade(atividade.id!, atividade);
       }
 
       if (mounted) {

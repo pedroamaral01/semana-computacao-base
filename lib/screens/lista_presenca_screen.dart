@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../core/constants/app_colors.dart';
-import '../data/models/atividade.dart';
+import '../domain/entities/atividade.dart';
 import '../data/models/inscricao.dart';
 import '../services/firestore_service.dart';
 import '../services/firebase_auth_service.dart';
@@ -82,7 +82,7 @@ class _ListaPresencaScreenState extends State<ListaPresencaScreen> {
   }
 
   Widget _buildListaPresenca() {
-    return StreamBuilder<List<Inscricao>>(
+    return StreamBuilder<List<Map<String, dynamic>>>(
       stream: firestoreService.getInscricoesAtividade(atividadeSelecionada!),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -105,7 +105,10 @@ class _ListaPresencaScreenState extends State<ListaPresencaScreen> {
           );
         }
 
-        final inscricoes = snapshot.data!;
+        final inscricoesData = snapshot.data!;
+        final inscricoes = inscricoesData
+            .map((data) => Inscricao.fromJson(data))
+            .toList();
         final presentes = inscricoes.where((i) => i.checkInRealizado).length;
         final total = inscricoes.length;
 

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_strings.dart';
-import '../data/models/atividade.dart';
+import '../domain/entities/atividade.dart';
 import '../data/providers/atividade_provider.dart';
 import '../data/providers/agenda_provider.dart';
 import 'atividade_detail_screen.dart';
@@ -23,7 +23,10 @@ class _ProgramacaoScreenState extends State<ProgramacaoScreen> {
   Widget build(BuildContext context) {
     return Consumer<AtividadeProvider>(
       builder: (context, atividadeProvider, child) {
-        final atividades = atividadeProvider.atividades;
+        final atividades = atividadeProvider.aplicarFiltros(
+          tipo: _tipoSelecionado,
+          data: _dataSelecionada,
+        );
         final datas = atividadeProvider.getDatasDisponiveis();
 
         if (atividadeProvider.isLoading) {
@@ -123,15 +126,14 @@ class _ProgramacaoScreenState extends State<ProgramacaoScreen> {
   }
 
   void _aplicarFiltros() {
-    Provider.of<AtividadeProvider>(
-      context,
-      listen: false,
-    ).aplicarFiltros(tipo: _tipoSelecionado, data: _dataSelecionada);
+    setState(() {
+      // Os filtros já foram aplicados no build
+    });
   }
 
   Widget _buildAtividadeCard(BuildContext context, Atividade atividade) {
     final agendaProvider = Provider.of<AgendaProvider>(context);
-    final isFavorito = agendaProvider.isFavorito(atividade.id);
+    final isFavorito = agendaProvider.isFavorito(atividade.id!);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -142,7 +144,7 @@ class _ProgramacaoScreenState extends State<ProgramacaoScreen> {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  AtividadeDetailScreen(atividadeId: atividade.id),
+                  AtividadeDetailScreen(atividadeId: atividade.id!),
             ),
           );
         },
@@ -168,7 +170,7 @@ class _ProgramacaoScreenState extends State<ProgramacaoScreen> {
                       color: isFavorito ? AppColors.accentGold : AppColors.grey,
                     ),
                     onPressed: () {
-                      agendaProvider.toggleFavorito(atividade.id);
+                      agendaProvider.toggleFavorito(atividade.id!);
                     },
                   ),
                 ],

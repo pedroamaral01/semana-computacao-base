@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_strings.dart';
-import '../data/models/atividade.dart';
+import '../domain/entities/atividade.dart';
 import '../data/providers/agenda_provider.dart';
 import 'atividade_detail_screen.dart';
 
@@ -104,7 +104,7 @@ class MinhaAgendaScreen extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  AtividadeDetailScreen(atividadeId: atividade.id),
+                  AtividadeDetailScreen(atividadeId: atividade.id!),
             ),
           );
         },
@@ -130,7 +130,7 @@ class MinhaAgendaScreen extends StatelessWidget {
                       color: AppColors.accentGold,
                     ),
                     onPressed: () {
-                      agendaProvider.toggleFavorito(atividade.id);
+                      agendaProvider.toggleFavorito(atividade.id!);
                     },
                   ),
                 ],

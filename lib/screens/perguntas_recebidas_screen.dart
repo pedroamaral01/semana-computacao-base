@@ -18,9 +18,13 @@ class PerguntasRecebidasScreen extends StatelessWidget {
     final Map<String, List> perguntasPorAtividade = {};
 
     for (final atividade in atividades) {
-      final perguntas = perguntaProvider.getPerguntasByAtividade(atividade.id);
-      if (perguntas.isNotEmpty) {
-        perguntasPorAtividade[atividade.id] = [atividade, perguntas];
+      if (atividade.id != null) {
+        final perguntas = perguntaProvider.getPerguntasByAtividade(
+          atividade.id!,
+        );
+        if (perguntas.isNotEmpty) {
+          perguntasPorAtividade[atividade.id!] = [atividade, perguntas];
+        }
       }
     }
 

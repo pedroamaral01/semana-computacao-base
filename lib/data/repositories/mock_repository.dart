@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
 import '../models/usuario.dart';
-import '../models/atividade.dart';
+import '../../domain/entities/atividade.dart';
 import '../models/pergunta.dart';
 import '../models/inscricao.dart';
 
@@ -31,14 +30,14 @@ class MockRepository {
       descricao:
           'Cerimônia de abertura com apresentação da programação completa do evento. Contaremos com a presença de autoridades da UFOP e do DECSI.',
       palestrante: 'Prof. João Silva',
-      data: DateTime(2026, 3, 10),
-      horarioInicio: const TimeOfDay(hour: 8, minute: 0),
-      horarioFim: const TimeOfDay(hour: 9, minute: 0),
+      dataHora: DateTime(2026, 3, 10, 8, 0),
+      duracao: 60, // 1 hora
       local: 'Auditório Principal',
       tipo: 'Palestra',
       aoVivo: false,
-      vagasTotal: 200,
+      vagas: 200,
       vagasDisponiveis: 200,
+      criadoPor: '2',
     ),
     Atividade(
       id: '2',
@@ -46,14 +45,14 @@ class MockRepository {
       descricao:
           'Minicurso prático de desenvolvimento mobile com Flutter. Aprenda a criar aplicativos para Android e iOS com uma única base de código.',
       palestrante: 'Maria Santos',
-      data: DateTime(2026, 3, 10),
-      horarioInicio: const TimeOfDay(hour: 10, minute: 0),
-      horarioFim: const TimeOfDay(hour: 12, minute: 0),
+      dataHora: DateTime(2026, 3, 10, 10, 0),
+      duracao: 120, // 2 horas
       local: 'Sala 10',
       tipo: 'Minicurso',
       aoVivo: false,
-      vagasTotal: 30,
+      vagas: 30,
       vagasDisponiveis: 15,
+      criadoPor: '2',
     ),
     Atividade(
       id: '3',
@@ -61,14 +60,14 @@ class MockRepository {
       descricao:
           'Palestra sobre as aplicações práticas de IA em nosso dia a dia e suas implicações éticas.',
       palestrante: 'Dr. Carlos Alberto',
-      data: DateTime(2026, 3, 10),
-      horarioInicio: const TimeOfDay(hour: 14, minute: 0),
-      horarioFim: const TimeOfDay(hour: 16, minute: 0),
+      dataHora: DateTime(2026, 3, 10, 14, 0),
+      duracao: 120, // 2 horas
       local: 'Auditório Principal',
       tipo: 'Palestra',
       aoVivo: true,
-      vagasTotal: 200,
+      vagas: 200,
       vagasDisponiveis: 180,
+      criadoPor: '2',
     ),
     Atividade(
       id: '4',
@@ -76,14 +75,14 @@ class MockRepository {
       descricao:
           'Minicurso sobre controle de versão com Git e colaboração através do GitHub.',
       palestrante: 'Ana Paula',
-      data: DateTime(2026, 3, 11),
-      horarioInicio: const TimeOfDay(hour: 8, minute: 0),
-      horarioFim: const TimeOfDay(hour: 10, minute: 0),
+      dataHora: DateTime(2026, 3, 11, 8, 0),
+      duracao: 120, // 2 horas
       local: 'Sala 12',
       tipo: 'Minicurso',
       aoVivo: false,
-      vagasTotal: 25,
+      vagas: 25,
       vagasDisponiveis: 5,
+      criadoPor: '2',
     ),
     Atividade(
       id: '5',
@@ -91,14 +90,14 @@ class MockRepository {
       descricao:
           'Palestra sobre as tendências atuais em desenvolvimento web: frameworks, ferramentas e melhores práticas.',
       palestrante: 'Prof. Roberto Lima',
-      data: DateTime(2026, 3, 11),
-      horarioInicio: const TimeOfDay(hour: 10, minute: 30),
-      horarioFim: const TimeOfDay(hour: 12, minute: 0),
+      dataHora: DateTime(2026, 3, 11, 10, 30),
+      duracao: 90, // 1.5 horas
       local: 'Auditório Principal',
       tipo: 'Palestra',
       aoVivo: false,
-      vagasTotal: 200,
+      vagas: 200,
       vagasDisponiveis: 150,
+      criadoPor: '2',
     ),
     Atividade(
       id: '6',
@@ -106,14 +105,14 @@ class MockRepository {
       descricao:
           'Workshop sobre práticas de segurança em aplicações web e proteção de dados.',
       palestrante: 'Dra. Patricia Souza',
-      data: DateTime(2026, 3, 11),
-      horarioInicio: const TimeOfDay(hour: 14, minute: 0),
-      horarioFim: const TimeOfDay(hour: 17, minute: 0),
+      dataHora: DateTime(2026, 3, 11, 14, 0),
+      duracao: 180, // 3 horas
       local: 'Sala 15',
       tipo: 'Minicurso',
       aoVivo: false,
-      vagasTotal: 20,
+      vagas: 20,
       vagasDisponiveis: 0,
+      criadoPor: '2',
     ),
     Atividade(
       id: '7',
@@ -121,14 +120,14 @@ class MockRepository {
       descricao:
           'Minicurso prático sobre algoritmos de Machine Learning e suas aplicações.',
       palestrante: 'Prof. Fernando Costa',
-      data: DateTime(2026, 3, 12),
-      horarioInicio: const TimeOfDay(hour: 8, minute: 0),
-      horarioFim: const TimeOfDay(hour: 11, minute: 0),
+      dataHora: DateTime(2026, 3, 12, 8, 0),
+      duracao: 180, // 3 horas
       local: 'Lab. de Computação',
       tipo: 'Minicurso',
       aoVivo: false,
-      vagasTotal: 30,
+      vagas: 30,
       vagasDisponiveis: 12,
+      criadoPor: '2',
     ),
     Atividade(
       id: '8',
@@ -136,14 +135,14 @@ class MockRepository {
       descricao:
           'Mesa redonda com profissionais da área discutindo oportunidades e desafios na carreira de TI.',
       palestrante: 'Diversos Palestrantes',
-      data: DateTime(2026, 3, 12),
-      horarioInicio: const TimeOfDay(hour: 14, minute: 0),
-      horarioFim: const TimeOfDay(hour: 16, minute: 0),
+      dataHora: DateTime(2026, 3, 12, 14, 0),
+      duracao: 120, // 2 horas
       local: 'Auditório Principal',
       tipo: 'Palestra',
       aoVivo: false,
-      vagasTotal: 200,
+      vagas: 200,
       vagasDisponiveis: 190,
+      criadoPor: '2',
     ),
     Atividade(
       id: '9',
@@ -151,14 +150,14 @@ class MockRepository {
       descricao:
           'Palestra sobre arquiteturas em nuvem e práticas DevOps para deploy contínuo.',
       palestrante: 'Eng. Lucas Martins',
-      data: DateTime(2026, 3, 12),
-      horarioInicio: const TimeOfDay(hour: 16, minute: 30),
-      horarioFim: const TimeOfDay(hour: 18, minute: 0),
+      dataHora: DateTime(2026, 3, 12, 16, 30),
+      duracao: 90, // 1.5 horas
       local: 'Sala 10',
       tipo: 'Palestra',
       aoVivo: false,
-      vagasTotal: 100,
+      vagas: 100,
       vagasDisponiveis: 85,
+      criadoPor: '2',
     ),
     Atividade(
       id: '10',
@@ -166,14 +165,14 @@ class MockRepository {
       descricao:
           'Cerimônia de encerramento com premiação dos participantes e entrega de certificados.',
       palestrante: 'Comissão Organizadora',
-      data: DateTime(2026, 3, 12),
-      horarioInicio: const TimeOfDay(hour: 18, minute: 30),
-      horarioFim: const TimeOfDay(hour: 20, minute: 0),
+      dataHora: DateTime(2026, 3, 12, 18, 30),
+      duracao: 90, // 1.5 horas
       local: 'Auditório Principal',
       tipo: 'Palestra',
       aoVivo: false,
-      vagasTotal: 200,
+      vagas: 200,
       vagasDisponiveis: 200,
+      criadoPor: '2',
     ),
   ];
 

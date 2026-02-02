@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../core/constants/app_colors.dart';
-import '../data/models/atividade.dart';
+import '../domain/entities/atividade.dart';
 import '../data/models/inscricao.dart';
 import '../data/providers/auth_provider.dart';
 import '../services/firestore_service.dart';
@@ -23,7 +23,7 @@ class MinhasInscricoesScreen extends StatelessWidget {
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: AppColors.white,
       ),
-      body: StreamBuilder<List<Inscricao>>(
+      body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: firestoreService.getInscricoesUsuario(usuarioId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -51,7 +51,10 @@ class MinhasInscricoesScreen extends StatelessWidget {
             );
           }
 
-          final inscricoes = snapshot.data!;
+          final inscricoesData = snapshot.data!;
+          final inscricoes = inscricoesData
+              .map((data) => Inscricao.fromJson(data))
+              .toList();
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
@@ -220,7 +223,10 @@ class MinhasInscricoesScreen extends StatelessWidget {
                       );
 
                       if (confirmar == true && context.mounted) {
-                        await firestoreService.cancelarInscricao(inscricao.id);
+                        await firestoreService.cancelarInscricao(
+                          inscricao.id,
+                          inscricao.atividadeId,
+                        );
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Inscrição cancelada com sucesso'),

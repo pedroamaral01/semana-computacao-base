@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../core/constants/app_colors.dart';
-import '../data/models/atividade.dart';
+import '../domain/entities/atividade.dart';
 import '../services/firestore_service.dart';
 import 'cadastrar_atividade_screen.dart';
 
@@ -241,7 +241,7 @@ class GerenciarAtividadesScreen extends StatelessWidget {
                       );
 
                       if (confirmar == true && context.mounted) {
-                        await firestoreService.excluirAtividade(atividade.id);
+                        await firestoreService.excluirAtividade(atividade.id!);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Atividade excluída com sucesso'),

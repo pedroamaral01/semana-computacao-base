@@ -25,6 +25,10 @@ class StorageService {
     await prefs.remove(_userKey);
   }
 
+  Future<void> clearUser() async {
+    await removeUser();
+  }
+
   Future<void> saveFavorites(List<String> favorites) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_favoritesKey, favorites);

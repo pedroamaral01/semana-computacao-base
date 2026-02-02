@@ -1,0 +1,29 @@
+name: semana_computacao_app
+description: "Aplicativo para a Semana da Computação do DECSI - UFOP"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.0.0
+  shared_preferences: ^2.2.0
+  flutter_local_notifications: ^16.0.0
+  mobile_scanner: ^3.5.0
+  intl: ^0.18.0
+  cupertino_icons: ^1.0.6
+  qr_flutter: ^4.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/

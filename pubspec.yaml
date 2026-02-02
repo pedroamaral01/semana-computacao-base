@@ -16,6 +16,10 @@ dependencies:
   intl: ^0.18.0
   cupertino_icons: ^1.0.6
   qr_flutter: ^4.1.0
+  firebase_core: ^2.24.0
+  firebase_auth: ^4.15.0
+  cloud_firestore: ^4.13.0
+  uuid: ^4.3.3
 
 dev_dependencies:
   flutter_test:

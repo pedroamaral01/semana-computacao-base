@@ -7,6 +7,9 @@ import 'programacao_screen.dart';
 import 'minha_agenda_screen.dart';
 import 'checkin_screen.dart';
 import 'perguntas_recebidas_screen.dart';
+import 'minhas_inscricoes_screen.dart';
+import 'gerenciar_atividades_screen.dart';
+import 'lista_presenca_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final List<Widget> screens = [
       const ProgramacaoScreen(),
       const MinhaAgendaScreen(),
+      const MinhasInscricoesScreen(),
       if (isOrganizador) const CheckinScreen(),
       if (isOrganizador) const PerguntasRecebidasScreen(),
     ];
@@ -38,6 +42,10 @@ class _HomeScreenState extends State<HomeScreen> {
       const BottomNavigationBarItem(
         icon: Icon(Icons.bookmark),
         label: AppStrings.minhaAgenda,
+      ),
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.assignment),
+        label: 'Inscrições',
       ),
       if (isOrganizador)
         const BottomNavigationBarItem(
@@ -57,6 +65,32 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: AppColors.white,
         actions: [
+          if (isOrganizador) ...[
+            IconButton(
+              icon: const Icon(Icons.event),
+              tooltip: 'Gerenciar Atividades',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const GerenciarAtividadesScreen(),
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.people),
+              tooltip: 'Lista de Presença',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ListaPresencaScreen(),
+                  ),
+                );
+              },
+            ),
+          ],
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {

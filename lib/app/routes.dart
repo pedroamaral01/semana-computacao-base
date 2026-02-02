@@ -8,6 +8,7 @@ import '../screens/minhas_inscricoes_screen.dart';
 import '../screens/cadastrar_atividade_screen.dart';
 import '../screens/gerenciar_atividades_screen.dart';
 import '../screens/lista_presenca_screen.dart';
+import '../data/models/atividade.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -42,7 +43,8 @@ class AppRoutes {
           settings: settings,
         );
       case cadastrarAtividade:
-        final atividade = settings.arguments; // pode ser null para criar nova
+        final atividade =
+            settings.arguments as Atividade?; // pode ser null para criar nova
         return MaterialPageRoute(
           builder: (context) => CadastrarAtividadeScreen(atividade: atividade),
           settings: settings,

@@ -1,121 +1,109 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import '../models/atividade.dart';
-import '../models/inscricao.dart';
-import '../repositories/mock_repository.dart';
+import 'package:semana_computacao_app/domain/entities/atividade.dart';
+import '../../services/firestore_service.dart';
 
-class AtividadeProvider with ChangeNotifier {
-  final MockRepository _repository = MockRepository();
+class AtividadeProvider extends ChangeNotifier {
+  final FirestoreService _firestoreService = FirestoreService();
 
   List<Atividade> _atividades = [];
-  List<Atividade> _atividadesFiltradas = [];
-  String? _filtroTipo;
-  DateTime? _filtroData;
   bool _isLoading = false;
+  String? _error;
 
-  List<Atividade> get atividades => _atividadesFiltradas;
+  List<Atividade> get atividades => _atividades;
   bool get isLoading => _isLoading;
-  String? get filtroTipo => _filtroTipo;
-  DateTime? get filtroData => _filtroData;
+  String? get error => _error;
 
-  AtividadeProvider() {
-    carregarAtividades();
-  }
-
-  void carregarAtividades() {
+  // Buscar todas as atividades
+  Future<void> fetchAtividades() async {
     _isLoading = true;
-    notifyListeners();
-
-    _atividades = _repository.getAtividades();
-    _atividadesFiltradas = List.from(_atividades);
-
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  void aplicarFiltros({String? tipo, DateTime? data}) {
-    _filtroTipo = tipo;
-    _filtroData = data;
-
-    _atividadesFiltradas = _atividades.where((atividade) {
-      bool passaTipo =
-          tipo == null || tipo == 'Todos' || atividade.tipo == tipo;
-      bool passaData =
-          data == null ||
-          (atividade.data.year == data.year &&
-              atividade.data.month == data.month &&
-              atividade.data.day == data.day);
-
-      return passaTipo && passaData;
-    }).toList();
-
-    notifyListeners();
-  }
-
-  void limparFiltros() {
-    _filtroTipo = null;
-    _filtroData = null;
-    _atividadesFiltradas = List.from(_atividades);
-    notifyListeners();
-  }
-
-  Atividade? getAtividadeById(String id) {
-    return _repository.getAtividadeById(id);
-  }
-
-  List<DateTime> getDatasDisponiveis() {
-    final datas = _atividades.map((a) => a.data).toSet().toList();
-    datas.sort();
-    return datas;
-  }
-
-  Future<bool> inscreverEmAtividade(
-    String usuarioId,
-    String atividadeId,
-  ) async {
-    _isLoading = true;
+    _error = null;
     notifyListeners();
 
     try {
-      // Simular delay de rede
-      await Future.delayed(const Duration(seconds: 1));
+      _atividades = await _firestoreService.getAtividades();
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 
-      final atividade = getAtividadeById(atividadeId);
+  // Buscar atividade por ID
+  Future<Atividade?> getAtividadeById(String id) async {
+    try {
+      return await _firestoreService.getAtividadeById(id);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
 
-      if (atividade == null || atividade.vagasDisponiveis <= 0) {
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
+  // Criar atividade
+  Future<bool> criarAtividade(Atividade atividade) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
 
-      if (_repository.isUsuarioInscrito(usuarioId, atividadeId)) {
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
-
-      final inscricao = Inscricao(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        usuarioId: usuarioId,
-        atividadeId: atividadeId,
-        dataHora: DateTime.now(),
-        checkInRealizado: false,
-      );
-
-      _repository.adicionarInscricao(inscricao);
-      carregarAtividades(); // Recarregar para atualizar vagas
-
+    try {
+      await _firestoreService.criarAtividade(atividade);
+      await fetchAtividades(); // Atualiza lista
       _isLoading = false;
       notifyListeners();
       return true;
     } catch (e) {
+      _error = e.toString();
       _isLoading = false;
       notifyListeners();
       return false;
     }
   }
 
-  bool isUsuarioInscrito(String usuarioId, String atividadeId) {
-    return _repository.isUsuarioInscrito(usuarioId, atividadeId);
+  // Atualizar atividade
+  Future<bool> atualizarAtividade(String id, Atividade atividade) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _firestoreService.atualizarAtividade(id, atividade);
+      await fetchAtividades(); // Atualiza lista
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // Excluir atividade
+  Future<bool> excluirAtividade(String id) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _firestoreService.excluirAtividade(id);
+      await fetchAtividades(); // Atualiza lista
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // Limpar erro
+  void clearError() {
+    _error = null;
+    notifyListeners();
   }
 }

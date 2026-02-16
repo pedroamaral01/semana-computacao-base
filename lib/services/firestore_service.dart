@@ -86,6 +86,26 @@ class FirestoreService {
     String atividadeId,
   ) async {
     try {
+      print(
+        '🔍 DEBUG - Tentando inscrever usuário: $usuarioId na atividade: $atividadeId',
+      );
+
+      // Verifica se já existe inscrição ativa
+      final inscricoesExistentes = await _firestore
+          .collection('inscricoes')
+          .where('usuarioId', isEqualTo: usuarioId)
+          .where('atividadeId', isEqualTo: atividadeId)
+          .where('cancelada', isEqualTo: false)
+          .get();
+
+      if (inscricoesExistentes.docs.isNotEmpty) {
+        throw Exception('Você já está inscrito nesta atividade');
+      }
+
+      print(
+        '🔍 DEBUG - Nenhuma inscrição duplicada encontrada, prosseguindo...',
+      );
+
       await _firestore.runTransaction((transaction) async {
         // Busca a atividade
         final atividadeRef = _firestore
@@ -121,7 +141,8 @@ class FirestoreService {
         });
       });
     } catch (e) {
-      throw Exception('Erro ao inscrever em atividade: $e');
+      print('Erro ao inscrever em atividade: $e');
+      rethrow;
     }
   }
 

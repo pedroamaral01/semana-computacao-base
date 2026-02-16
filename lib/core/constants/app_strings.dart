@@ -8,7 +8,7 @@ class AppStrings {
   static const String senha = 'Senha';
   static const String entrar = 'Entrar';
   static const String emailInvalido =
-      'Apenas emails @ufop.edu.br são permitidos';
+      'Apenas emails do domínio ufop.edu.br são permitidos';
   static const String campoObrigatorio = 'Campo obrigatório';
   static const String emailInvalidoFormato = 'Email inválido';
 

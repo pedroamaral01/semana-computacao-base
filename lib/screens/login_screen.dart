@@ -128,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Apenas usuários com email @ufop.edu.br',
+                  'Apenas usuários com email do domínio ufop.edu.br',
                   style: TextStyle(color: AppColors.grey, fontSize: 12),
                   textAlign: TextAlign.center,
                 ),

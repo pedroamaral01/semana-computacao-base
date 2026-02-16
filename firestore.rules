@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Função auxiliar para verificar se o usuário está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Regras para a coleção de usuários
+    match /usuarios/{userId} {
+      // Leitura: qualquer usuário autenticado pode ler
+      allow read: if isAuthenticated();
+      // Criação: qualquer pessoa autenticada pode criar seu próprio documento
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      // Atualização: apenas o próprio usuário
+      allow update: if isAuthenticated() && request.auth.uid == userId;
+      // Deleção: não permitida
+      allow delete: if false;
+    }
+    
+    // Regras para a coleção de atividades
+    match /atividades/{atividadeId} {
+      // Leitura: todos os usuários autenticados
+      allow read: if isAuthenticated();
+      // Escrita: todos os usuários autenticados (para simplificar)
+      // Em produção, restringir apenas para organizadores
+      allow write: if isAuthenticated();
+    }
+    
+    // Regras para a coleção de inscrições
+    match /inscricoes/{inscricaoId} {
+      // Leitura: qualquer usuário autenticado pode ler
+      allow read: if isAuthenticated();
+      // Criação: usuários autenticados podem se inscrever
+      allow create: if isAuthenticated();
+      // Atualização: qualquer usuário autenticado (para check-in e cancelamento)
+      allow update: if isAuthenticated();
+      // Deleção: não permitida diretamente
+      allow delete: if false;
+    }
+    
+    // Regras para a coleção de perguntas
+    match /perguntas/{perguntaId} {
+      // Leitura: todos os usuários autenticados
+      allow read: if isAuthenticated();
+      // Criação: qualquer usuário autenticado
+      allow create: if isAuthenticated();
+      // Atualização e deleção: qualquer usuário autenticado
+      allow update, delete: if isAuthenticated();
+    }
+    
+    // Regras para a coleção de favoritos
+    match /favoritos/{favoritoId} {
+      // Leitura e escrita: qualquer usuário autenticado
+      allow read, write: if isAuthenticated();
+    }
+  }
+}

@@ -157,7 +157,8 @@ class _AtividadeDetailScreenState extends State<AtividadeDetailScreen> {
             _buildInfoRow(Icons.access_time, atividade.horarioFormatado),
             const SizedBox(height: 8),
             _buildInfoRow(Icons.location_on, atividade.local),
-            if (atividade.tipo == 'Minicurso') ...[
+            // Mostra vagas disponíveis se a atividade tiver limite de vagas
+            if (atividade.vagasTotal > 0) ...[
               const SizedBox(height: 8),
               _buildInfoRow(
                 Icons.people,
@@ -171,7 +172,8 @@ class _AtividadeDetailScreenState extends State<AtividadeDetailScreen> {
             ),
             const SizedBox(height: 8),
             Text(atividade.descricao, style: const TextStyle(fontSize: 16)),
-            if (atividade.tipo == 'Minicurso') ...[
+            // Mostra botão de inscrição para atividades com vagas limitadas
+            if (atividade.vagasTotal > 0) ...[
               const SizedBox(height: 24),
               _buildInscricaoButton(context, atividade),
             ],
@@ -266,24 +268,37 @@ class _AtividadeDetailScreenState extends State<AtividadeDetailScreen> {
         return CustomButton(
           text: AppStrings.inscreverSe,
           onPressed: () async {
+            print('🔍 DEBUG - Usuário atual: ${authProvider.currentUser?.id}');
+            print(
+              '🔍 DEBUG - Usuário autenticado: ${authProvider.isAuthenticated}',
+            );
+
             final success = await atividadeProvider.inscreverEmAtividade(
               atividade.id!,
               authProvider.currentUser!.id,
             );
 
             if (context.mounted) {
+              final errorMessage =
+                  atividadeProvider.error ??
+                  'Erro desconhecido ao realizar inscrição';
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    success
-                        ? AppStrings.inscritoComSucesso
-                        : 'Erro ao realizar inscrição',
+                    success ? AppStrings.inscritoComSucesso : errorMessage,
                   ),
                   backgroundColor: success
                       ? AppColors.success
                       : AppColors.error,
+                  duration: const Duration(seconds: 3),
                 ),
               );
+
+              // Recarrega a atividade para atualizar o estado
+              if (success) {
+                setState(() {});
+              }
             }
           },
           isLoading: atividadeProvider.isLoading,

@@ -154,12 +154,17 @@ class AtividadeProvider extends ChangeNotifier {
     String atividadeId,
     String usuarioId,
   ) async {
+    _error = null;
+    notifyListeners();
+
     try {
       await _firestoreService.inscreverEmAtividade(usuarioId, atividadeId);
       await fetchAtividades(); // Atualiza lista
+      notifyListeners();
       return true;
     } catch (e) {
-      _error = e.toString();
+      _error = e.toString().replaceAll('Exception: ', '');
+      print('Erro na inscrição: $_error');
       notifyListeners();
       return false;
     }

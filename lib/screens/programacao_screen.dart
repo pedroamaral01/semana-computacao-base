@@ -20,6 +20,15 @@ class _ProgramacaoScreenState extends State<ProgramacaoScreen> {
   DateTime? _dataSelecionada;
 
   @override
+  void initState() {
+    super.initState();
+    // Carrega as atividades ao iniciar a tela
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AtividadeProvider>(context, listen: false).fetchAtividades();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer<AtividadeProvider>(
       builder: (context, atividadeProvider, child) {

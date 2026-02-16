@@ -8,7 +8,12 @@ class FirebaseAuthService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final Uuid _uuid = const Uuid();
 
-  User? get currentUser => _auth.currentUser;
+  User? get currentUser {
+    final user = _auth.currentUser;
+    print('🔍 DEBUG - Firebase Auth currentUser: ${user?.uid ?? "NULL"}');
+    return user;
+  }
+
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   // Cadastrar novo usuário
@@ -52,20 +57,29 @@ class FirebaseAuthService {
     required String senha,
   }) async {
     try {
+      print('🔍 DEBUG - Tentando login com: $email');
+
       final userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: senha,
       );
 
       final uid = userCredential.user!.uid;
+      print('🔍 DEBUG - Login bem-sucedido! UID: $uid');
+      print('🔍 DEBUG - Firebase Auth User: ${userCredential.user?.email}');
+
       final doc = await _firestore.collection('usuarios').doc(uid).get();
 
       if (doc.exists) {
-        return app_models.Usuario.fromJson(doc.data()!);
+        final usuario = app_models.Usuario.fromJson(doc.data()!);
+        print('🔍 DEBUG - Usuário carregado do Firestore: ${usuario.nome}');
+        return usuario;
       }
+
+      print('❌ DEBUG - Documento do usuário não existe no Firestore!');
       return null;
     } catch (e) {
-      print('Erro ao fazer login: $e');
+      print('❌ Erro ao fazer login: $e');
       return null;
     }
   }

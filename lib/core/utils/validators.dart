@@ -1,6 +1,8 @@
 class Validators {
   static bool isValidUfopEmail(String email) {
-    return email.toLowerCase().endsWith('@ufop.edu.br');
+    // Aceita qualquer email que termine com ufop.edu.br
+    // Exemplos: @ufop.edu.br, @aluno.ufop.edu.br, @professor.ufop.edu.br
+    return email.toLowerCase().endsWith('ufop.edu.br');
   }
 
   static bool isValidEmail(String email) {

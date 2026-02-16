@@ -321,6 +321,13 @@ class _CadastrarAtividadeScreenState extends State<CadastrarAtividadeScreen> {
                   return null;
                 },
               ),
+              const Padding(
+                padding: EdgeInsets.only(left: 12, top: 4),
+                child: Text(
+                  'Digite 0 para atividade sem inscrição (palestras abertas)',
+                  style: TextStyle(fontSize: 12, color: AppColors.grey),
+                ),
+              ),
               const SizedBox(height: 16),
               SwitchListTile(
                 title: const Text('Atividade Ao Vivo'),

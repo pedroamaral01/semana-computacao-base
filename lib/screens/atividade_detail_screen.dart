@@ -201,6 +201,33 @@ class _AtividadeDetailScreenState extends State<AtividadeDetailScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final atividadeProvider = Provider.of<AtividadeProvider>(context);
 
+    // Verifica se o usuário está autenticado
+    if (authProvider.currentUser == null) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.error.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.error),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, color: AppColors.error),
+            SizedBox(width: 8),
+            Text(
+              'Faça login para se inscrever',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.error,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return FutureBuilder<bool>(
       future: atividadeProvider.isUsuarioInscrito(
         atividade.id!,

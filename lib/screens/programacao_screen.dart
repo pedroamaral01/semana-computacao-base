@@ -178,8 +178,34 @@ class _ProgramacaoScreenState extends State<ProgramacaoScreen> {
                       isFavorito ? Icons.bookmark : Icons.bookmark_border,
                       color: isFavorito ? AppColors.accentGold : AppColors.grey,
                     ),
-                    onPressed: () {
-                      agendaProvider.toggleFavorito(atividade.id!);
+                    onPressed: () async {
+                      try {
+                        await agendaProvider.toggleFavorito(atividade.id!);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                isFavorito
+                                    ? 'Removido da agenda'
+                                    : 'Adicionado à agenda',
+                              ),
+                              duration: const Duration(seconds: 2),
+                              backgroundColor: isFavorito
+                                  ? AppColors.grey
+                                  : AppColors.success,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Erro ao salvar: $e'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
+                      }
                     },
                   ),
                 ],

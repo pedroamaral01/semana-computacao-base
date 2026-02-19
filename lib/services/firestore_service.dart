@@ -217,4 +217,72 @@ class FirestoreService {
               .toList(),
         );
   }
+
+  // ==================== FAVORITOS ====================
+
+  Future<void> salvarFavoritos(String userId, List<String> favoritosIds) async {
+    try {
+      print(
+        '🔄 Firestore: Iniciando salvamento de ${favoritosIds.length} favoritos para $userId',
+      );
+      print('🔄 Firestore: IDs dos favoritos: $favoritosIds');
+
+      // Sempre usa merge: true para criar ou atualizar
+      await _firestore.collection('usuarios').doc(userId).set({
+        'favoritos': favoritosIds,
+        'ultimaAtualizacao': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      print('✅ Firestore: Favoritos salvos com sucesso!');
+
+      // Verifica se realmente salvou fazendo uma leitura
+      final doc = await _firestore.collection('usuarios').doc(userId).get();
+      if (doc.exists) {
+        final data = doc.data();
+        final savedFavoritos = data?['favoritos'] as List?;
+        print(
+          '✅ Firestore: Verificação - ${savedFavoritos?.length ?? 0} favoritos no banco',
+        );
+      }
+    } catch (e, stackTrace) {
+      print('❌ Erro crítico ao salvar favoritos: $e');
+      print('❌ Stack trace: $stackTrace');
+      throw Exception('Erro ao salvar favoritos: $e');
+    }
+  }
+
+  Future<List<String>> carregarFavoritos(String userId) async {
+    try {
+      final doc = await _firestore.collection('usuarios').doc(userId).get();
+
+      if (!doc.exists) {
+        print('📂 Firestore: Usuário $userId não existe ainda');
+        return [];
+      }
+
+      final data = doc.data();
+      if (data == null || !data.containsKey('favoritos')) {
+        print('📂 Firestore: Nenhum favorito encontrado para $userId');
+        return [];
+      }
+
+      final favoritos = List<String>.from(data['favoritos'] ?? []);
+      print(
+        '📂 Firestore: Carregados ${favoritos.length} favoritos para $userId',
+      );
+      return favoritos;
+    } catch (e) {
+      print('❌ Erro ao carregar favoritos: $e');
+      return [];
+    }
+  }
+
+  Stream<List<String>> getFavoritosStream(String userId) {
+    return _firestore.collection('usuarios').doc(userId).snapshots().map((doc) {
+      if (!doc.exists) return <String>[];
+      final data = doc.data();
+      if (data == null || !data.containsKey('favoritos')) return <String>[];
+      return List<String>.from(data['favoritos'] ?? []);
+    });
+  }
 }

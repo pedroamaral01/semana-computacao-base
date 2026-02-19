@@ -29,23 +29,32 @@ class StorageService {
     await removeUser();
   }
 
-  Future<void> saveFavorites(List<String> favorites) async {
+  Future<void> saveFavorites(List<String> favorites, String userId) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_favoritesKey, favorites);
+    final key = '${_favoritesKey}_$userId';
+    await prefs.setStringList(key, favorites);
+    print(
+      '💾 StorageService: Salvos ${favorites.length} favoritos com chave: $key',
+    );
   }
 
-  Future<List<String>> getFavorites() async {
+  Future<List<String>> getFavorites(String userId) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList(_favoritesKey) ?? [];
+    final key = '${_favoritesKey}_$userId';
+    final result = prefs.getStringList(key) ?? [];
+    print(
+      '📂 StorageService: Carregados ${result.length} favoritos com chave: $key',
+    );
+    return result;
   }
 
-  Future<void> saveInscricoes(List<String> inscricoes) async {
+  Future<void> saveInscricoes(List<String> inscricoes, String userId) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_inscricoesKey, inscricoes);
+    await prefs.setStringList('${_inscricoesKey}_$userId', inscricoes);
   }
 
-  Future<List<String>> getInscricoes() async {
+  Future<List<String>> getInscricoes(String userId) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList(_inscricoesKey) ?? [];
+    return prefs.getStringList('${_inscricoesKey}_$userId') ?? [];
   }
 }

@@ -6,6 +6,7 @@ import '../core/utils/validators.dart';
 import '../core/widgets/custom_button.dart';
 import '../core/widgets/custom_text_field.dart';
 import '../data/providers/auth_provider.dart';
+import '../data/providers/agenda_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -48,6 +49,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (mounted) {
       if (success) {
+        // Configura o AgendaProvider com o usuário logado
+        final agendaProvider = Provider.of<AgendaProvider>(
+          context,
+          listen: false,
+        );
+        if (authProvider.currentUser != null) {
+          await agendaProvider.setUsuario(authProvider.currentUser!.id);
+        }
+
         Navigator.of(context).pushReplacementNamed('/home');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

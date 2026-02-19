@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_strings.dart';
 import '../data/providers/auth_provider.dart';
+import '../data/providers/agenda_provider.dart';
 import 'programacao_screen.dart';
 import 'minha_agenda_screen.dart';
 import 'checkin_screen.dart';
@@ -20,6 +21,23 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Configura o usuário no AgendaProvider após o build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final agendaProvider = Provider.of<AgendaProvider>(
+        context,
+        listen: false,
+      );
+
+      if (authProvider.currentUser != null) {
+        agendaProvider.setUsuario(authProvider.currentUser!.id);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

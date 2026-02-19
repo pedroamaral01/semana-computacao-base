@@ -14,8 +14,34 @@ class MinhasInscricoesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    final usuarioId = authProvider.currentUser?.id ?? '';
     final firestoreService = FirestoreService();
+
+    // Valida se o usuário está autenticado
+    if (authProvider.currentUser == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Minhas Inscrições'),
+          backgroundColor: AppColors.primaryBlue,
+          foregroundColor: AppColors.white,
+        ),
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 80, color: AppColors.error),
+              SizedBox(height: 16),
+              Text(
+                'Faça login para ver suas inscrições',
+                style: TextStyle(fontSize: 16, color: AppColors.error),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final usuarioId = authProvider.currentUser!.id;
 
     return Scaffold(
       appBar: AppBar(

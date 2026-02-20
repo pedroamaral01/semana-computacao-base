@@ -234,23 +234,6 @@ class _ProgramacaoScreenState extends State<ProgramacaoScreen> {
                       ),
                     ),
                   ),
-                  if (atividade.aoVivo) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.error,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text(
-                        AppStrings.aoVivo,
-                        style: TextStyle(fontSize: 12, color: AppColors.white),
-                      ),
-                    ),
-                  ],
                 ],
               ),
               const SizedBox(height: 8),

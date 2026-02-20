@@ -40,21 +40,40 @@ class AgendaProvider with ChangeNotifier {
 
   Future<void> carregarAtividades() async {
     try {
+      print('🔄 AgendaProvider: Carregando atividades do Firestore...');
       _atividades = await _firestoreService.getAtividades();
+      print('✅ AgendaProvider: ${_atividades.length} atividades carregadas');
       notifyListeners();
     } catch (e) {
-      print('Erro ao carregar atividades na agenda: $e');
+      print('❌ Erro ao carregar atividades na agenda: $e');
     }
   }
 
+  // Método público para forçar recarga
+  Future<void> recarregarAtividades() async {
+    await carregarAtividades();
+  }
+
   List<Atividade> getAtividadesFavoritas() {
-    return _atividades
-        .where((atividade) => _favoritosIds.contains(atividade.id))
-        .toList()
-      ..sort((a, b) {
-        final dateCompare = a.dataHora.compareTo(b.dataHora);
-        return dateCompare;
-      });
+    final favoritas =
+        _atividades
+            .where((atividade) => _favoritosIds.contains(atividade.id))
+            .toList()
+          ..sort((a, b) {
+            final dateCompare = a.dataHora.compareTo(b.dataHora);
+            return dateCompare;
+          });
+
+    // Log para debug
+    if (favoritas.length != _favoritosIds.length) {
+      print(
+        '⚠️ AgendaProvider: ${_favoritosIds.length} favoritos salvos, mas apenas ${favoritas.length} encontrados na lista local',
+      );
+      print('⚠️ IDs favoritos: $_favoritosIds');
+      print('⚠️ IDs na lista: ${_atividades.map((a) => a.id).toList()}');
+    }
+
+    return favoritas;
   }
 
   bool isFavorito(String atividadeId) {
@@ -78,10 +97,14 @@ class AgendaProvider with ChangeNotifier {
         print('❌ AgendaProvider: Removido favorito $atividadeId');
       } else {
         _favoritosIds.add(atividadeId);
-        // Recarrega atividades se a lista estiver vazia
-        if (_atividades.isEmpty) {
-          await carregarAtividades();
-        }
+
+        // SEMPRE recarrega atividades antes de tentar agendar notificação
+        // para garantir que atividades novas estejam na lista
+        print(
+          '🔄 AgendaProvider: Recarregando atividades para incluir novas...',
+        );
+        await carregarAtividades();
+
         if (_notificacoesHabilitadas && !kIsWeb) {
           try {
             await _agendarNotificacao(atividadeId);

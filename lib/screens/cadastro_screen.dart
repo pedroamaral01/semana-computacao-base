@@ -22,6 +22,8 @@ class _CadastroScreenState extends State<CadastroScreen> {
   final _senhaController = TextEditingController();
   final _confirmaSenhaController = TextEditingController();
   String _tipoSelecionado = 'Participante';
+  bool _senhaVisivel = false;
+  bool _confirmaSenhaVisivel = false;
 
   @override
   void dispose() {
@@ -62,7 +64,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
     }
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.cadastrar(
+    final result = await authProvider.cadastrar(
       nome: _nomeController.text.trim(),
       email: email,
       senha: senha,
@@ -70,7 +72,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
     );
 
     if (mounted) {
-      if (success) {
+      if (result.success) {
         // Configura o AgendaProvider com o usuário cadastrado
         final agendaProvider = Provider.of<AgendaProvider>(
           context,
@@ -89,9 +91,10 @@ class _CadastroScreenState extends State<CadastroScreen> {
         Navigator.of(context).pushReplacementNamed('/home');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erro ao realizar cadastro. Tente novamente.'),
+          SnackBar(
+            content: Text(result.errorMessage ?? 'Erro ao realizar cadastro'),
             backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
           ),
         );
       }
@@ -186,7 +189,18 @@ class _CadastroScreenState extends State<CadastroScreen> {
                 CustomTextField(
                   label: AppStrings.senha,
                   controller: _senhaController,
-                  obscureText: true,
+                  obscureText: !_senhaVisivel,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _senhaVisivel ? Icons.visibility_off : Icons.visibility,
+                      color: AppColors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _senhaVisivel = !_senhaVisivel;
+                      });
+                    },
+                  ),
                   validator: (value) {
                     if (!Validators.isNotEmpty(value)) {
                       return AppStrings.campoObrigatorio;
@@ -201,7 +215,20 @@ class _CadastroScreenState extends State<CadastroScreen> {
                 CustomTextField(
                   label: 'Confirmar Senha',
                   controller: _confirmaSenhaController,
-                  obscureText: true,
+                  obscureText: !_confirmaSenhaVisivel,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _confirmaSenhaVisivel
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: AppColors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _confirmaSenhaVisivel = !_confirmaSenhaVisivel;
+                      });
+                    },
+                  ),
                   validator: (value) {
                     if (!Validators.isNotEmpty(value)) {
                       return AppStrings.campoObrigatorio;

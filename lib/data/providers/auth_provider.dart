@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/usuario.dart';
 import '../../services/firebase_auth_service.dart';
 import '../../services/storage_service.dart';
+import '../../core/utils/auth_result.dart';
 
 class AuthProvider with ChangeNotifier {
   final FirebaseAuthService _firebaseAuthService = FirebaseAuthService();
@@ -35,7 +37,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> cadastrar({
+  Future<AuthResult> cadastrar({
     required String nome,
     required String email,
     required String senha,
@@ -57,21 +59,48 @@ class AuthProvider with ChangeNotifier {
         await _storageService.saveUser(usuario.toJson());
         _isLoading = false;
         notifyListeners();
-        return true;
+        return AuthResult.success();
       }
 
       _isLoading = false;
       notifyListeners();
-      return false;
+      return AuthResult.failure(
+        message: 'Erro ao criar conta. Tente novamente.',
+      );
+    } on FirebaseAuthException catch (e) {
+      _isLoading = false;
+      notifyListeners();
+
+      String errorMessage;
+      switch (e.code) {
+        case 'email-already-in-use':
+          errorMessage = 'Este email já está cadastrado.';
+          break;
+        case 'invalid-email':
+          errorMessage = 'Email inválido.';
+          break;
+        case 'weak-password':
+          errorMessage = 'Senha muito fraca. Use pelo menos 6 caracteres.';
+          break;
+        case 'network-request-failed':
+          errorMessage = 'Erro de conexão. Verifique sua internet.';
+          break;
+        default:
+          errorMessage = 'Erro ao criar conta: ${e.message}';
+      }
+
+      return AuthResult.failure(message: errorMessage, code: e.code);
     } catch (e) {
       print('Erro no cadastro: $e');
       _isLoading = false;
       notifyListeners();
-      return false;
+      return AuthResult.failure(
+        message: 'Erro inesperado ao criar conta. Tente novamente.',
+      );
     }
   }
 
-  Future<bool> login(String email, String senha) async {
+  Future<AuthResult> login(String email, String senha) async {
     _isLoading = true;
     notifyListeners();
 
@@ -86,17 +115,51 @@ class AuthProvider with ChangeNotifier {
         await _storageService.saveUser(usuario.toJson());
         _isLoading = false;
         notifyListeners();
-        return true;
+        return AuthResult.success();
       }
 
       _isLoading = false;
       notifyListeners();
-      return false;
-    } catch (e) {
-      print('Erro no login: $e');
+      return AuthResult.failure(message: 'Erro ao carregar dados do usuário');
+    } on FirebaseAuthException catch (e) {
       _isLoading = false;
       notifyListeners();
-      return false;
+
+      // Traduz os códigos de erro do Firebase para mensagens amigáveis
+      String errorMessage;
+      switch (e.code) {
+        case 'invalid-credential':
+        case 'wrong-password':
+          errorMessage = 'Senha incorreta. Tente novamente.';
+          break;
+        case 'user-not-found':
+          errorMessage = 'Email não cadastrado no sistema.';
+          break;
+        case 'invalid-email':
+          errorMessage = 'Email inválido.';
+          break;
+        case 'user-disabled':
+          errorMessage = 'Esta conta foi desativada.';
+          break;
+        case 'too-many-requests':
+          errorMessage = 'Muitas tentativas. Tente novamente mais tarde.';
+          break;
+        case 'network-request-failed':
+          errorMessage = 'Erro de conexão. Verifique sua internet.';
+          break;
+        default:
+          errorMessage = 'Erro ao fazer login: ${e.message}';
+      }
+
+      print('❌ Erro no login: ${e.code} - $errorMessage');
+      return AuthResult.failure(message: errorMessage, code: e.code);
+    } catch (e) {
+      print('❌ Erro inesperado no login: $e');
+      _isLoading = false;
+      notifyListeners();
+      return AuthResult.failure(
+        message: 'Erro inesperado ao fazer login. Tente novamente.',
+      );
     }
   }
 

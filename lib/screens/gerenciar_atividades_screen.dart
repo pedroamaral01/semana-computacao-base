@@ -96,31 +96,6 @@ class GerenciarAtividadesScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (atividade.aoVivo)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.error,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.circle, size: 10, color: AppColors.white),
-                        SizedBox(width: 4),
-                        Text(
-                          'Ao Vivo',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
               ],
             ),
             const SizedBox(height: 8),

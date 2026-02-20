@@ -328,20 +328,6 @@ class _CadastrarAtividadeScreenState extends State<CadastrarAtividadeScreen> {
                   style: TextStyle(fontSize: 12, color: AppColors.grey),
                 ),
               ),
-              const SizedBox(height: 16),
-              SwitchListTile(
-                title: const Text('Atividade Ao Vivo'),
-                subtitle: const Text(
-                  'Permite envio de perguntas em tempo real',
-                ),
-                value: _aoVivo,
-                onChanged: (value) {
-                  setState(() {
-                    _aoVivo = value;
-                  });
-                },
-                activeColor: AppColors.primaryBlue,
-              ),
               const SizedBox(height: 24),
               CustomButton(
                 text: widget.atividade == null

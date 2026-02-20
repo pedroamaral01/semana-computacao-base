@@ -9,7 +9,6 @@ import '../domain/entities/atividade.dart';
 import '../data/providers/atividade_provider.dart';
 import '../data/providers/agenda_provider.dart';
 import '../data/providers/auth_provider.dart';
-import '../data/providers/pergunta_provider.dart';
 
 class AtividadeDetailScreen extends StatefulWidget {
   final String atividadeId;
@@ -21,11 +20,8 @@ class AtividadeDetailScreen extends StatefulWidget {
 }
 
 class _AtividadeDetailScreenState extends State<AtividadeDetailScreen> {
-  final _perguntaController = TextEditingController();
-
   @override
   void dispose() {
-    _perguntaController.dispose();
     super.dispose();
   }
 
@@ -112,33 +108,6 @@ class _AtividadeDetailScreenState extends State<AtividadeDetailScreen> {
                     ),
                   ),
                 ),
-                if (atividade.aoVivo) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.error,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.circle, size: 10, color: AppColors.white),
-                        SizedBox(width: 4),
-                        Text(
-                          AppStrings.aoVivo,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               ],
             ),
             const SizedBox(height: 20),
@@ -176,10 +145,6 @@ class _AtividadeDetailScreenState extends State<AtividadeDetailScreen> {
             if (atividade.vagasTotal > 0) ...[
               const SizedBox(height: 24),
               _buildInscricaoButton(context, atividade),
-            ],
-            if (atividade.aoVivo) ...[
-              const SizedBox(height: 24),
-              _buildPerguntaSection(context),
             ],
           ],
         ),
@@ -331,68 +296,6 @@ class _AtividadeDetailScreenState extends State<AtividadeDetailScreen> {
           isLoading: atividadeProvider.isLoading,
         );
       },
-    );
-  }
-
-  Widget _buildPerguntaSection(BuildContext context) {
-    final perguntaProvider = Provider.of<PerguntaProvider>(context);
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Envie sua pergunta',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        CustomTextField(
-          label: AppStrings.facaSuaPergunta,
-          controller: _perguntaController,
-          maxLines: 3,
-        ),
-        const SizedBox(height: 12),
-        CustomButton(
-          text: AppStrings.enviar,
-          onPressed: () async {
-            if (_perguntaController.text.trim().isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(AppStrings.perguntaVazia),
-                  backgroundColor: AppColors.error,
-                ),
-              );
-              return;
-            }
-
-            final success = await perguntaProvider.enviarPergunta(
-              usuarioId: authProvider.currentUser!.id,
-              atividadeId: widget.atividadeId,
-              texto: _perguntaController.text.trim(),
-            );
-
-            if (context.mounted) {
-              if (success) {
-                _perguntaController.clear();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(AppStrings.perguntaEnviada),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Erro ao enviar pergunta'),
-                    backgroundColor: AppColors.error,
-                  ),
-                );
-              }
-            }
-          },
-          isLoading: perguntaProvider.isLoading,
-        ),
-      ],
     );
   }
 }

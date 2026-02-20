@@ -45,9 +45,12 @@ class FirebaseAuthService {
       await _firestore.collection('usuarios').doc(uid).set(usuario.toJson());
 
       return usuario;
+    } on FirebaseAuthException catch (e) {
+      print('❌ Erro ao cadastrar usuário: ${e.code} - ${e.message}');
+      rethrow;
     } catch (e) {
-      print('Erro ao cadastrar usuário: $e');
-      return null;
+      print('❌ Erro inesperado ao cadastrar usuário: $e');
+      rethrow;
     }
   }
 
@@ -78,9 +81,14 @@ class FirebaseAuthService {
 
       print('❌ DEBUG - Documento do usuário não existe no Firestore!');
       return null;
+    } on FirebaseAuthException catch (e) {
+      print('❌ Erro ao fazer login: ${e.code} - ${e.message}');
+
+      // Propaga a exceção para ser tratada na camada superior
+      rethrow;
     } catch (e) {
-      print('❌ Erro ao fazer login: $e');
-      return null;
+      print('❌ Erro inesperado ao fazer login: $e');
+      rethrow;
     }
   }
 

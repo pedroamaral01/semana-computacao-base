@@ -19,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
+  bool _senhaVisivel = false;
 
   @override
   void dispose() {
@@ -45,10 +46,10 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.login(email, senha);
+    final result = await authProvider.login(email, senha);
 
     if (mounted) {
-      if (success) {
+      if (result.success) {
         // Configura o AgendaProvider com o usuário logado
         final agendaProvider = Provider.of<AgendaProvider>(
           context,
@@ -61,9 +62,10 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.of(context).pushReplacementNamed('/home');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Email não encontrado no sistema'),
+          SnackBar(
+            content: Text(result.errorMessage ?? 'Erro ao fazer login'),
             backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
           ),
         );
       }
@@ -118,7 +120,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 CustomTextField(
                   label: AppStrings.senha,
                   controller: _senhaController,
-                  obscureText: true,
+                  obscureText: !_senhaVisivel,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _senhaVisivel ? Icons.visibility_off : Icons.visibility,
+                      color: AppColors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _senhaVisivel = !_senhaVisivel;
+                      });
+                    },
+                  ),
                   validator: (value) {
                     if (!Validators.isNotEmpty(value)) {
                       return AppStrings.campoObrigatorio;

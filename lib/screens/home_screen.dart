@@ -7,7 +7,6 @@ import '../data/providers/agenda_provider.dart';
 import 'programacao_screen.dart';
 import 'minha_agenda_screen.dart';
 import 'checkin_screen.dart';
-import 'perguntas_recebidas_screen.dart';
 import 'minhas_inscricoes_screen.dart';
 import 'gerenciar_atividades_screen.dart';
 import 'lista_presenca_screen.dart';
@@ -49,7 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
       const MinhaAgendaScreen(),
       const MinhasInscricoesScreen(),
       if (isOrganizador) const CheckinScreen(),
-      if (isOrganizador) const PerguntasRecebidasScreen(),
     ];
 
     final List<BottomNavigationBarItem> items = [
@@ -69,11 +67,6 @@ class _HomeScreenState extends State<HomeScreen> {
         const BottomNavigationBarItem(
           icon: Icon(Icons.qr_code_scanner),
           label: AppStrings.checkin,
-        ),
-      if (isOrganizador)
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.question_answer),
-          label: AppStrings.perguntas,
         ),
     ];
 

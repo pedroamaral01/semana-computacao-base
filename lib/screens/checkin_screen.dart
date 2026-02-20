@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_strings.dart';
@@ -13,8 +14,16 @@ class CheckinScreen extends StatefulWidget {
 
 class _CheckinScreenState extends State<CheckinScreen> {
   final MockRepository _repository = MockRepository();
-  MobileScannerController cameraController = MobileScannerController();
+  late MobileScannerController cameraController;
   bool _isProcessing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    cameraController = MobileScannerController(
+      detectionSpeed: DetectionSpeed.noDuplicates,
+    );
+  }
 
   @override
   void dispose() {
@@ -94,49 +103,127 @@ class _CheckinScreenState extends State<CheckinScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          MobileScanner(controller: cameraController, onDetect: _onDetect),
-          Container(
-            decoration: BoxDecoration(color: Colors.black.withOpacity(0.5)),
-          ),
-          Center(
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.accentGold, width: 3),
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 60,
-            left: 0,
-            right: 0,
+    // Verifica se está na web
+    if (kIsWeb) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Check-in'),
+          backgroundColor: AppColors.primaryBlue,
+          foregroundColor: AppColors.white,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  AppStrings.escaneieQrCode,
+                Icon(Icons.qr_code_scanner, size: 100, color: AppColors.grey),
+                const SizedBox(height: 24),
+                Text(
+                  'Scanner de QR Code não disponível na web',
                   style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: AppColors.grey,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 20),
-                if (_isProcessing)
-                  const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      AppColors.accentGold,
-                    ),
-                  ),
+                const SizedBox(height: 16),
+                Text(
+                  'Use o aplicativo mobile para escanear QR Codes e realizar check-in',
+                  style: TextStyle(fontSize: 14, color: AppColors.grey),
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
           ),
-        ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      body: SafeArea(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            MobileScanner(
+              controller: cameraController,
+              onDetect: _onDetect,
+              errorBuilder: (context, error, child) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 100,
+                          color: AppColors.error,
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Erro ao acessar câmera',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.error,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Verifique as permissões de câmera do aplicativo',
+                          style: TextStyle(fontSize: 14, color: AppColors.grey),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+            Container(
+              decoration: BoxDecoration(color: Colors.black.withOpacity(0.5)),
+            ),
+            Center(
+              child: Container(
+                width: 250,
+                height: 250,
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.accentGold, width: 3),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 60,
+              left: 0,
+              right: 0,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    AppStrings.escaneieQrCode,
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  if (_isProcessing)
+                    const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppColors.accentGold,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

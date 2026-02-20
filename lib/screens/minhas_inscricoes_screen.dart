@@ -90,11 +90,42 @@ class MinhasInscricoesScreen extends StatelessWidget {
               return FutureBuilder<Atividade?>(
                 future: firestoreService.getAtividade(inscricao.atividadeId),
                 builder: (context, atividadeSnapshot) {
-                  if (!atividadeSnapshot.hasData) {
+                  if (atividadeSnapshot.connectionState ==
+                      ConnectionState.waiting) {
                     return const Card(
                       child: Padding(
                         padding: EdgeInsets.all(16),
                         child: Center(child: CircularProgressIndicator()),
+                      ),
+                    );
+                  }
+
+                  if (!atividadeSnapshot.hasData ||
+                      atividadeSnapshot.data == null) {
+                    return Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Atividade não encontrada',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.error,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'ID: ${inscricao.atividadeId}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   }
@@ -281,21 +312,38 @@ class MinhasInscricoesScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('QR Code da Inscrição'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            QrImageView(
-              data: inscricao.id,
-              version: QrVersions.auto,
-              size: 250.0,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Apresente este QR Code para fazer check-in',
-              style: TextStyle(fontSize: 14),
-              textAlign: TextAlign.center,
-            ),
-          ],
+        content: SizedBox(
+          width: 300,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: QrImageView(
+                  data: inscricao.id,
+                  version: QrVersions.auto,
+                  size: 200.0,
+                  backgroundColor: AppColors.white,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Apresente este QR Code para fazer check-in',
+                style: TextStyle(fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'ID: ${inscricao.id.substring(0, 8)}...',
+                style: const TextStyle(fontSize: 10, color: AppColors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(

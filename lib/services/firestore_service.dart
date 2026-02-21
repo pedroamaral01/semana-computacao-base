@@ -148,29 +148,47 @@ class FirestoreService {
 
   Future<void> cancelarInscricao(String inscricaoId, String atividadeId) async {
     try {
-      await _firestore.runTransaction((transaction) async {
-        // Marca inscrição como cancelada
-        final inscricaoRef = _firestore
-            .collection('inscricoes')
-            .doc(inscricaoId);
-        transaction.update(inscricaoRef, {'cancelada': true});
+      print('🔄 Iniciando cancelamento da inscrição: $inscricaoId');
+      print('🔄 Atividade ID: $atividadeId');
 
-        // Devolve vaga
-        final atividadeRef = _firestore
-            .collection('atividades')
-            .doc(atividadeId);
-        final atividadeDoc = await transaction.get(atividadeRef);
+      // Marca inscrição como cancelada
+      final inscricaoRef = _firestore.collection('inscricoes').doc(inscricaoId);
 
-        if (atividadeDoc.exists) {
-          final vagasDisponiveis =
-              atividadeDoc.data()!['vagasDisponiveis'] as int;
-          transaction.update(atividadeRef, {
-            'vagasDisponiveis': vagasDisponiveis + 1,
-          });
+      print('🔄 Buscando inscrição...');
+      final inscricaoDoc = await inscricaoRef.get();
+
+      if (!inscricaoDoc.exists) {
+        print('❌ Inscrição não encontrada');
+        throw Exception('Inscrição não encontrada');
+      }
+
+      print('🔄 Marcando inscrição como cancelada...');
+      await inscricaoRef.set({'cancelada': true}, SetOptions(merge: true));
+      print('✅ Inscrição marcada como cancelada');
+
+      // Devolve vaga
+      print('🔄 Devolvendo vaga...');
+      final atividadeRef = _firestore.collection('atividades').doc(atividadeId);
+      final atividadeDoc = await atividadeRef.get();
+
+      if (atividadeDoc.exists) {
+        final data = atividadeDoc.data();
+        if (data != null && data.containsKey('vagasDisponiveis')) {
+          final vagasDisponiveis = data['vagasDisponiveis'] as int;
+          await atividadeRef.update({'vagasDisponiveis': vagasDisponiveis + 1});
+          print('✅ Vaga devolvida. Total disponível: ${vagasDisponiveis + 1}');
+        } else {
+          print('⚠️ Campo vagasDisponiveis não encontrado na atividade');
         }
-      });
-    } catch (e) {
-      throw Exception('Erro ao cancelar inscrição: $e');
+      } else {
+        print('⚠️ Atividade não encontrada: $atividadeId');
+      }
+
+      print('✅ Cancelamento concluído com sucesso');
+    } catch (e, stackTrace) {
+      print('❌ Erro ao cancelar inscrição: $e');
+      print('❌ Stack trace: $stackTrace');
+      rethrow;
     }
   }
 
@@ -178,10 +196,15 @@ class FirestoreService {
     return _firestore
         .collection('inscricoes')
         .where('usuarioId', isEqualTo: usuarioId)
-        .where('cancelada', isEqualTo: false)
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
+              .where((doc) {
+                // Filtra inscrições canceladas
+                final data = doc.data();
+                final cancelada = data['cancelada'] as bool?;
+                return cancelada != true; // Retorna true se não for cancelada
+              })
               .map((doc) => {'id': doc.id, ...doc.data()})
               .toList(),
         );

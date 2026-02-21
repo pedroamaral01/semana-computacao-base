@@ -18,131 +18,117 @@ class MinhasInscricoesScreen extends StatelessWidget {
 
     // Valida se o usuário está autenticado
     if (authProvider.currentUser == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Minhas Inscrições'),
-          backgroundColor: AppColors.primaryBlue,
-          foregroundColor: AppColors.white,
-        ),
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 80, color: AppColors.error),
-              SizedBox(height: 16),
-              Text(
-                'Faça login para ver suas inscrições',
-                style: TextStyle(fontSize: 16, color: AppColors.error),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 80, color: AppColors.error),
+            SizedBox(height: 16),
+            Text(
+              'Faça login para ver suas inscrições',
+              style: TextStyle(fontSize: 16, color: AppColors.error),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       );
     }
 
     final usuarioId = authProvider.currentUser!.id;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Minhas Inscrições'),
-        backgroundColor: AppColors.primaryBlue,
-        foregroundColor: AppColors.white,
-      ),
-      body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: firestoreService.getInscricoesUsuario(usuarioId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: firestoreService.getInscricoesUsuario(usuarioId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.assignment_outlined,
-                    size: 80,
-                    color: AppColors.grey,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Você ainda não está inscrito\nem nenhuma atividade',
-                    style: TextStyle(fontSize: 16, color: AppColors.grey),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final inscricoesData = snapshot.data!;
-          final inscricoes = inscricoesData
-              .map((data) => Inscricao.fromJson(data))
-              .toList();
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: inscricoes.length,
-            itemBuilder: (context, index) {
-              final inscricao = inscricoes[index];
-              return FutureBuilder<Atividade?>(
-                future: firestoreService.getAtividade(inscricao.atividadeId),
-                builder: (context, atividadeSnapshot) {
-                  if (atividadeSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                    );
-                  }
-
-                  if (!atividadeSnapshot.hasData ||
-                      atividadeSnapshot.data == null) {
-                    return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Atividade não encontrada',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.error,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'ID: ${inscricao.atividadeId}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
-
-                  final atividade = atividadeSnapshot.data!;
-                  return _buildInscricaoCard(
-                    context,
-                    inscricao,
-                    atividade,
-                    firestoreService,
-                  );
-                },
-              );
-            },
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.assignment_outlined,
+                  size: 80,
+                  color: AppColors.grey,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Você ainda não está inscrito\nem nenhuma atividade',
+                  style: TextStyle(fontSize: 16, color: AppColors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           );
-        },
-      ),
+        }
+
+        final inscricoesData = snapshot.data!;
+        final inscricoes = inscricoesData
+            .map((data) => Inscricao.fromJson(data))
+            .toList();
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: inscricoes.length,
+          itemBuilder: (context, index) {
+            final inscricao = inscricoes[index];
+            return FutureBuilder<Atividade?>(
+              future: firestoreService.getAtividade(inscricao.atividadeId),
+              builder: (context, atividadeSnapshot) {
+                if (atividadeSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  );
+                }
+
+                if (!atividadeSnapshot.hasData ||
+                    atividadeSnapshot.data == null) {
+                  return Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Atividade não encontrada',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.error,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'ID: ${inscricao.atividadeId}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                final atividade = atividadeSnapshot.data!;
+                return _buildInscricaoCard(
+                  context,
+                  inscricao,
+                  atividade,
+                  firestoreService,
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 
@@ -273,6 +259,9 @@ class MinhasInscricoesScreen extends StatelessWidget {
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context, true),
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.error,
+                              ),
                               child: const Text('Sim'),
                             ),
                           ],
@@ -280,16 +269,61 @@ class MinhasInscricoesScreen extends StatelessWidget {
                       );
 
                       if (confirmar == true && context.mounted) {
-                        await firestoreService.cancelarInscricao(
-                          inscricao.id,
-                          inscricao.atividadeId,
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Inscrição cancelada com sucesso'),
-                            backgroundColor: AppColors.success,
+                        // Guarda o contexto do ScaffoldMessenger
+                        final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+                        // Mostra loading
+                        final navigator = Navigator.of(context);
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => WillPopScope(
+                            onWillPop: () async => false,
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
                           ),
                         );
+
+                        try {
+                          await firestoreService.cancelarInscricao(
+                            inscricao.id,
+                            inscricao.atividadeId,
+                          );
+
+                          // Fecha o loading
+                          navigator.pop();
+
+                          // Aguarda um pouco para o dialog ser fechado
+                          await Future.delayed(
+                            const Duration(milliseconds: 100),
+                          );
+
+                          scaffoldMessenger.showSnackBar(
+                            const SnackBar(
+                              content: Text('Inscrição cancelada com sucesso'),
+                              backgroundColor: AppColors.success,
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        } catch (e) {
+                          // Fecha o loading
+                          navigator.pop();
+
+                          await Future.delayed(
+                            const Duration(milliseconds: 100),
+                          );
+
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Erro ao cancelar: ${e.toString()}',
+                              ),
+                              backgroundColor: AppColors.error,
+                              duration: const Duration(seconds: 4),
+                            ),
+                          );
+                        }
                       }
                     },
                     icon: const Icon(Icons.cancel),

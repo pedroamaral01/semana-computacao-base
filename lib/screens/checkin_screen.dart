@@ -105,37 +105,30 @@ class _CheckinScreenState extends State<CheckinScreen> {
   Widget build(BuildContext context) {
     // Verifica se está na web
     if (kIsWeb) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Check-in'),
-          backgroundColor: AppColors.primaryBlue,
-          foregroundColor: AppColors.white,
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.qr_code_scanner, size: 100, color: AppColors.grey),
-                const SizedBox(height: 24),
-                Text(
-                  'Scanner de QR Code não disponível na web',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.grey,
-                  ),
-                  textAlign: TextAlign.center,
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.qr_code_scanner, size: 100, color: AppColors.grey),
+              const SizedBox(height: 24),
+              Text(
+                'Scanner de QR Code não disponível na web',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.grey,
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  'Use o aplicativo mobile para escanear QR Codes e realizar check-in',
-                  style: TextStyle(fontSize: 14, color: AppColors.grey),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Use o aplicativo mobile para escanear QR Codes e realizar check-in',
+                style: TextStyle(fontSize: 14, color: AppColors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
       );

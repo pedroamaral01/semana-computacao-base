@@ -1,7 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ⚠️ REGRAS SUPER PERMISSIVAS - APENAS PARA TESTE! ⚠️
+    // REGRAS SUPER PERMISSIVAS - APENAS PARA TESTE! 
     // Use estas regras temporariamente para verificar se o problema
     // é de autenticação ou das regras específicas de segurança
     

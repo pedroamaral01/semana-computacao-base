@@ -21,31 +21,31 @@ class AgendaProvider with ChangeNotifier {
 
   // Método para definir o usuário atual e carregar seus favoritos
   Future<void> setUsuario(String userId) async {
-    print('📱 AgendaProvider: setUsuario chamado com userId: $userId');
+    print('AgendaProvider: setUsuario chamado com userId: $userId');
     _currentUserId = userId;
     await carregarFavoritos();
   }
 
   Future<void> carregarFavoritos() async {
     if (_currentUserId == null) {
-      print('⚠️ AgendaProvider: Tentou carregar favoritos sem userId');
+      print('AgendaProvider: Tentou carregar favoritos sem userId');
       return;
     }
     _favoritosIds = await _firestoreService.carregarFavoritos(_currentUserId!);
     print(
-      '✅ AgendaProvider: ${_favoritosIds.length} favoritos carregados para usuário $_currentUserId',
+      'AgendaProvider: ${_favoritosIds.length} favoritos carregados para usuário $_currentUserId',
     );
     notifyListeners();
   }
 
   Future<void> carregarAtividades() async {
     try {
-      print('🔄 AgendaProvider: Carregando atividades do Firestore...');
+      print('AgendaProvider: Carregando atividades do Firestore...');
       _atividades = await _firestoreService.getAtividades();
-      print('✅ AgendaProvider: ${_atividades.length} atividades carregadas');
+      print('AgendaProvider: ${_atividades.length} atividades carregadas');
       notifyListeners();
     } catch (e) {
-      print('❌ Erro ao carregar atividades na agenda: $e');
+      print('Erro ao carregar atividades na agenda: $e');
     }
   }
 
@@ -67,10 +67,10 @@ class AgendaProvider with ChangeNotifier {
     // Log para debug
     if (favoritas.length != _favoritosIds.length) {
       print(
-        '⚠️ AgendaProvider: ${_favoritosIds.length} favoritos salvos, mas apenas ${favoritas.length} encontrados na lista local',
+        'AgendaProvider: ${_favoritosIds.length} favoritos salvos, mas apenas ${favoritas.length} encontrados na lista local',
       );
-      print('⚠️ IDs favoritos: $_favoritosIds');
-      print('⚠️ IDs na lista: ${_atividades.map((a) => a.id).toList()}');
+      print('IDs favoritos: $_favoritosIds');
+      print('IDs na lista: ${_atividades.map((a) => a.id).toList()}');
     }
 
     return favoritas;
@@ -82,7 +82,7 @@ class AgendaProvider with ChangeNotifier {
 
   Future<void> toggleFavorito(String atividadeId) async {
     if (_currentUserId == null) {
-      print('⚠️ Usuário não definido no AgendaProvider');
+      print('Usuário não definido no AgendaProvider');
       return;
     }
 
@@ -92,16 +92,16 @@ class AgendaProvider with ChangeNotifier {
         try {
           await _cancelarNotificacao(atividadeId);
         } catch (e) {
-          print('⚠️ Erro ao cancelar notificação (ignorado): $e');
+          print('Erro ao cancelar notificação (ignorado): $e');
         }
-        print('❌ AgendaProvider: Removido favorito $atividadeId');
+        print('AgendaProvider: Removido favorito $atividadeId');
       } else {
         _favoritosIds.add(atividadeId);
 
         // SEMPRE recarrega atividades antes de tentar agendar notificação
         // para garantir que atividades novas estejam na lista
         print(
-          '🔄 AgendaProvider: Recarregando atividades para incluir novas...',
+          'AgendaProvider: Recarregando atividades para incluir novas...',
         );
         await carregarAtividades();
 
@@ -109,20 +109,20 @@ class AgendaProvider with ChangeNotifier {
           try {
             await _agendarNotificacao(atividadeId);
           } catch (e) {
-            print('⚠️ Erro ao agendar notificação (ignorado): $e');
+            print('Erro ao agendar notificação (ignorado): $e');
           }
         }
-        print('⭐ AgendaProvider: Adicionado favorito $atividadeId');
+        print('AgendaProvider: Adicionado favorito $atividadeId');
       }
 
       // SEMPRE salvar no Firestore, independente do erro de notificação
       await _firestoreService.salvarFavoritos(_currentUserId!, _favoritosIds);
       print(
-        '💾 AgendaProvider: Salvos ${_favoritosIds.length} favoritos para usuário $_currentUserId',
+        'AgendaProvider: Salvos ${_favoritosIds.length} favoritos para usuário $_currentUserId',
       );
       notifyListeners();
     } catch (e) {
-      print('❌ Erro ao toggle favorito: $e');
+      print('Erro ao toggle favorito: $e');
       // Reverte a alteração local se falhou no Firestore
       if (_favoritosIds.contains(atividadeId)) {
         _favoritosIds.remove(atividadeId);
@@ -156,7 +156,7 @@ class AgendaProvider with ChangeNotifier {
     try {
       // Notificações não são suportadas na web
       if (kIsWeb) {
-        print('ℹ️ Notificações não disponíveis na web');
+        print('Notificações não disponíveis na web');
         return;
       }
 
@@ -187,7 +187,7 @@ class AgendaProvider with ChangeNotifier {
         );
       }
     } catch (e) {
-      print('❌ Erro ao agendar notificação: $e');
+      print('Erro ao agendar notificação: $e');
       // Não propaga o erro - notificações são opcionais
     }
   }
@@ -197,7 +197,7 @@ class AgendaProvider with ChangeNotifier {
       if (kIsWeb) return; // Notificações não disponíveis na web
       await _notificationService.cancelNotification(atividadeId.hashCode);
     } catch (e) {
-      print('❌ Erro ao cancelar notificação: $e');
+      print('Erro ao cancelar notificação: $e');
       // Não propaga o erro - notificações são opcionais
     }
   }

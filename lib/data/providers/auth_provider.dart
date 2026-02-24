@@ -151,10 +151,10 @@ class AuthProvider with ChangeNotifier {
           errorMessage = 'Erro ao fazer login: ${e.message}';
       }
 
-      print('❌ Erro no login: ${e.code} - $errorMessage');
+      print('Erro no login: ${e.code} - $errorMessage');
       return AuthResult.failure(message: errorMessage, code: e.code);
     } catch (e) {
-      print('❌ Erro inesperado no login: $e');
+      print('Erro inesperado no login: $e');
       _isLoading = false;
       notifyListeners();
       return AuthResult.failure(

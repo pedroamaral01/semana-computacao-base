@@ -47,7 +47,7 @@ class Inscricao {
         dataHora = (dataInscricao as dynamic).toDate();
       }
     } catch (e) {
-      print('⚠️ Erro ao parsear dataInscricao: $e');
+      print('Erro ao parsear dataInscricao: $e');
       dataHora = DateTime.now();
     }
 
@@ -66,7 +66,7 @@ class Inscricao {
         }
       }
     } catch (e) {
-      print('⚠️ Erro ao parsear dataCheckin: $e');
+      print('Erro ao parsear dataCheckin: $e');
     }
 
     return Inscricao(

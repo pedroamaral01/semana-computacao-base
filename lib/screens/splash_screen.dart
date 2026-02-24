@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_strings.dart';
+import '../data/providers/auth_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,12 +15,22 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _navigateToLogin();
+    _checkAuthAndNavigate();
   }
 
-  Future<void> _navigateToLogin() async {
+  Future<void> _checkAuthAndNavigate() async {
+    // Pequeno delay para exibir a splash
     await Future.delayed(const Duration(seconds: 2));
-    if (mounted) {
+    if (!mounted) return;
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    await authProvider.checkAuthentication();
+
+    if (!mounted) return;
+
+    if (authProvider.isAuthenticated) {
+      Navigator.of(context).pushReplacementNamed('/home');
+    } else {
       Navigator.of(context).pushReplacementNamed('/login');
     }
   }

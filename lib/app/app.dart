@@ -21,7 +21,7 @@ class App extends StatelessWidget {
       child: MaterialApp(
         title: 'Semana da Computação',
         theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-        initialRoute: Routes.login,
+        initialRoute: Routes.splash,
         onGenerateRoute: Routes.generateRoute,
         debugShowCheckedModeBanner: false,
       ),

@@ -10,7 +10,7 @@ class FirebaseAuthService {
 
   User? get currentUser {
     final user = _auth.currentUser;
-    print('🔍 DEBUG - Firebase Auth currentUser: ${user?.uid ?? "NULL"}');
+    print('DEBUG - Firebase Auth currentUser: ${user?.uid ?? "NULL"}');
     return user;
   }
 
@@ -46,10 +46,10 @@ class FirebaseAuthService {
 
       return usuario;
     } on FirebaseAuthException catch (e) {
-      print('❌ Erro ao cadastrar usuário: ${e.code} - ${e.message}');
+      print('Erro ao cadastrar usuário: ${e.code} - ${e.message}');
       rethrow;
     } catch (e) {
-      print('❌ Erro inesperado ao cadastrar usuário: $e');
+      print('Erro inesperado ao cadastrar usuário: $e');
       rethrow;
     }
   }
@@ -60,7 +60,7 @@ class FirebaseAuthService {
     required String senha,
   }) async {
     try {
-      print('🔍 DEBUG - Tentando login com: $email');
+      print('DEBUG - Tentando login com: $email');
 
       final userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -68,26 +68,26 @@ class FirebaseAuthService {
       );
 
       final uid = userCredential.user!.uid;
-      print('🔍 DEBUG - Login bem-sucedido! UID: $uid');
-      print('🔍 DEBUG - Firebase Auth User: ${userCredential.user?.email}');
+      print('DEBUG - Login bem-sucedido! UID: $uid');
+      print('DEBUG - Firebase Auth User: ${userCredential.user?.email}');
 
       final doc = await _firestore.collection('usuarios').doc(uid).get();
 
       if (doc.exists) {
         final usuario = app_models.Usuario.fromJson(doc.data()!);
-        print('🔍 DEBUG - Usuário carregado do Firestore: ${usuario.nome}');
+        print('DEBUG - Usuário carregado do Firestore: ${usuario.nome}');
         return usuario;
       }
 
-      print('❌ DEBUG - Documento do usuário não existe no Firestore!');
+      print('DEBUG - Documento do usuário não existe no Firestore!');
       return null;
     } on FirebaseAuthException catch (e) {
-      print('❌ Erro ao fazer login: ${e.code} - ${e.message}');
+      print('Erro ao fazer login: ${e.code} - ${e.message}');
 
       // Propaga a exceção para ser tratada na camada superior
       rethrow;
     } catch (e) {
-      print('❌ Erro inesperado ao fazer login: $e');
+      print('Erro inesperado ao fazer login: $e');
       rethrow;
     }
   }

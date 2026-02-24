@@ -34,7 +34,7 @@ class StorageService {
     final key = '${_favoritesKey}_$userId';
     await prefs.setStringList(key, favorites);
     print(
-      '💾 StorageService: Salvos ${favorites.length} favoritos com chave: $key',
+      'StorageService: Salvos ${favorites.length} favoritos com chave: $key',
     );
   }
 
@@ -43,7 +43,7 @@ class StorageService {
     final key = '${_favoritesKey}_$userId';
     final result = prefs.getStringList(key) ?? [];
     print(
-      '📂 StorageService: Carregados ${result.length} favoritos com chave: $key',
+      'StorageService: Carregados ${result.length} favoritos com chave: $key',
     );
     return result;
   }

@@ -87,7 +87,7 @@ class FirestoreService {
   ) async {
     try {
       print(
-        '🔍 DEBUG - Tentando inscrever usuário: $usuarioId na atividade: $atividadeId',
+        'DEBUG - Tentando inscrever usuário: $usuarioId na atividade: $atividadeId',
       );
 
       // Verifica se já existe inscrição ativa
@@ -103,7 +103,7 @@ class FirestoreService {
       }
 
       print(
-        '🔍 DEBUG - Nenhuma inscrição duplicada encontrada, prosseguindo...',
+        'DEBUG - Nenhuma inscrição duplicada encontrada, prosseguindo...',
       );
 
       await _firestore.runTransaction((transaction) async {
@@ -148,26 +148,26 @@ class FirestoreService {
 
   Future<void> cancelarInscricao(String inscricaoId, String atividadeId) async {
     try {
-      print('🔄 Iniciando cancelamento da inscrição: $inscricaoId');
-      print('🔄 Atividade ID: $atividadeId');
+      print('Iniciando cancelamento da inscrição: $inscricaoId');
+      print('Atividade ID: $atividadeId');
 
       // Marca inscrição como cancelada
       final inscricaoRef = _firestore.collection('inscricoes').doc(inscricaoId);
 
-      print('🔄 Buscando inscrição...');
+      print('Buscando inscrição...');
       final inscricaoDoc = await inscricaoRef.get();
 
       if (!inscricaoDoc.exists) {
-        print('❌ Inscrição não encontrada');
+        print('Inscrição não encontrada');
         throw Exception('Inscrição não encontrada');
       }
 
-      print('🔄 Marcando inscrição como cancelada...');
+      print('Marcando inscrição como cancelada...');
       await inscricaoRef.set({'cancelada': true}, SetOptions(merge: true));
-      print('✅ Inscrição marcada como cancelada');
+      print('Inscrição marcada como cancelada');
 
       // Devolve vaga
-      print('🔄 Devolvendo vaga...');
+      print('Devolvendo vaga...');
       final atividadeRef = _firestore.collection('atividades').doc(atividadeId);
       final atividadeDoc = await atividadeRef.get();
 
@@ -176,18 +176,18 @@ class FirestoreService {
         if (data != null && data.containsKey('vagasDisponiveis')) {
           final vagasDisponiveis = data['vagasDisponiveis'] as int;
           await atividadeRef.update({'vagasDisponiveis': vagasDisponiveis + 1});
-          print('✅ Vaga devolvida. Total disponível: ${vagasDisponiveis + 1}');
+          print('Vaga devolvida. Total disponível: ${vagasDisponiveis + 1}');
         } else {
-          print('⚠️ Campo vagasDisponiveis não encontrado na atividade');
+          print('Campo vagasDisponiveis não encontrado na atividade');
         }
       } else {
-        print('⚠️ Atividade não encontrada: $atividadeId');
+        print('Atividade não encontrada: $atividadeId');
       }
 
-      print('✅ Cancelamento concluído com sucesso');
+      print('Cancelamento concluído com sucesso');
     } catch (e, stackTrace) {
-      print('❌ Erro ao cancelar inscrição: $e');
-      print('❌ Stack trace: $stackTrace');
+      print('Erro ao cancelar inscrição: $e');
+      print('Stack trace: $stackTrace');
       rethrow;
     }
   }
@@ -246,9 +246,9 @@ class FirestoreService {
   Future<void> salvarFavoritos(String userId, List<String> favoritosIds) async {
     try {
       print(
-        '🔄 Firestore: Iniciando salvamento de ${favoritosIds.length} favoritos para $userId',
+        'Firestore: Iniciando salvamento de ${favoritosIds.length} favoritos para $userId',
       );
-      print('🔄 Firestore: IDs dos favoritos: $favoritosIds');
+      print('Firestore: IDs dos favoritos: $favoritosIds');
 
       // Sempre usa merge: true para criar ou atualizar
       await _firestore.collection('usuarios').doc(userId).set({
@@ -256,7 +256,7 @@ class FirestoreService {
         'ultimaAtualizacao': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
-      print('✅ Firestore: Favoritos salvos com sucesso!');
+      print('Firestore: Favoritos salvos com sucesso!');
 
       // Verifica se realmente salvou fazendo uma leitura
       final doc = await _firestore.collection('usuarios').doc(userId).get();
@@ -264,12 +264,12 @@ class FirestoreService {
         final data = doc.data();
         final savedFavoritos = data?['favoritos'] as List?;
         print(
-          '✅ Firestore: Verificação - ${savedFavoritos?.length ?? 0} favoritos no banco',
+          'Firestore: Verificação - ${savedFavoritos?.length ?? 0} favoritos no banco',
         );
       }
     } catch (e, stackTrace) {
-      print('❌ Erro crítico ao salvar favoritos: $e');
-      print('❌ Stack trace: $stackTrace');
+      print('Erro crítico ao salvar favoritos: $e');
+      print('Stack trace: $stackTrace');
       throw Exception('Erro ao salvar favoritos: $e');
     }
   }
@@ -279,23 +279,23 @@ class FirestoreService {
       final doc = await _firestore.collection('usuarios').doc(userId).get();
 
       if (!doc.exists) {
-        print('📂 Firestore: Usuário $userId não existe ainda');
+        print('Firestore: Usuário $userId não existe ainda');
         return [];
       }
 
       final data = doc.data();
       if (data == null || !data.containsKey('favoritos')) {
-        print('📂 Firestore: Nenhum favorito encontrado para $userId');
+        print('Firestore: Nenhum favorito encontrado para $userId');
         return [];
       }
 
       final favoritos = List<String>.from(data['favoritos'] ?? []);
       print(
-        '📂 Firestore: Carregados ${favoritos.length} favoritos para $userId',
+        'Firestore: Carregados ${favoritos.length} favoritos para $userId',
       );
       return favoritos;
     } catch (e) {
-      print('❌ Erro ao carregar favoritos: $e');
+      print('Erro ao carregar favoritos: $e');
       return [];
     }
   }

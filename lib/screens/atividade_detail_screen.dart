@@ -260,9 +260,9 @@ class _AtividadeDetailScreenState extends State<AtividadeDetailScreen> {
         return CustomButton(
           text: AppStrings.inscreverSe,
           onPressed: () async {
-            print('🔍 DEBUG - Usuário atual: ${authProvider.currentUser?.id}');
+            print('DEBUG - Usuário atual: ${authProvider.currentUser?.id}');
             print(
-              '🔍 DEBUG - Usuário autenticado: ${authProvider.isAuthenticated}',
+              'DEBUG - Usuário autenticado: ${authProvider.isAuthenticated}',
             );
 
             final success = await atividadeProvider.inscreverEmAtividade(
